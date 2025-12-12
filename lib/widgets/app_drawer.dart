@@ -144,7 +144,8 @@ class AppDrawer extends StatelessWidget {
                       SizedBox(height: 8),
                       Text(
                         'A task management application built with Flutter '
-                        'for CSC 415 Mobile App Development course.',
+                        'Made by Ali Fayad and Mhmd Rida!'
+                        'For the CSC 415 Mobile Application Development course.',
                       ),
                       SizedBox(height: 16),
                       Text(
