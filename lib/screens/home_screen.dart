@@ -31,47 +31,47 @@ class _HomeScreenState extends State<HomeScreen> {
   // ========================================
   // STATE VARIABLES
   // ========================================
-  
+
   /// Database helper instance
-  final DatabaseHelper _dbHelper = DatabaseHelper. instance;
-  
+  final DatabaseHelper _dbHelper = DatabaseHelper.instance;
+
   /// Statistics
   int _totalTasks = 0;
   int _completedTasks = 0;
   int _pendingTasks = 0;
-  
+
   /// Data for pie chart
   Map<int, int> _tasksByCategory = {};
-  
+
   /// List of all categories
   List<Category> _categories = [];
-  
+
   /// List of recent tasks
   List<Task> _recentTasks = [];
-  
+
   /// Loading state
   bool _isLoading = true;
 
   // ========================================
   // LIFECYCLE METHODS
   // ========================================
-  
+
   @override
   void initState() {
     super.initState();
-    _loadData();  // Load data when screen initializes
+    _loadData();  // Load data when screen initialzies
   }
 
   // ========================================
   // DATA LOADING METHOD
   // ========================================
-  
+
   /// Loads all data from database and updates state
   /// This demonstrates state lifting - data is loaded here
   /// and passed down to child widgets
   Future<void> _loadData() async {
     setState(() => _isLoading = true);
-    
+
     // Fetch all data concurrently for better performance
     final results = await Future.wait([
       _dbHelper.getTotalTasksCount(),
@@ -81,7 +81,7 @@ class _HomeScreenState extends State<HomeScreen> {
       _dbHelper.getAllCategories(),
       _dbHelper.getRecentTasks(limit: 5),
     ]);
-    
+
     // Update state with fetched data
     setState(() {
       _totalTasks = results[0] as int;
@@ -97,19 +97,19 @@ class _HomeScreenState extends State<HomeScreen> {
   // ========================================
   // CALLBACK:  Toggle task completion
   // ========================================
-  
+
   /// Called when a task's checkbox is toggled
   /// Updates database and refreshes data
   Future<void> _toggleTaskComplete(Task task) async {
     await _dbHelper.toggleTaskComplete(task.id!, !task.isCompleted);
-    
+
     // Show SnackBar feedback (SnackBar requirement)
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content:  Text(
-            task.isCompleted 
-                ? 'Task marked as pending' 
+            task.isCompleted
+                ? 'Task marked as pending'
                 : 'Task completed!  🎉',
           ),
           duration: const Duration(seconds: 2),
@@ -117,7 +117,7 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       );
     }
-    
+
     // Reload data to refresh UI
     _loadData();
   }
@@ -125,7 +125,7 @@ class _HomeScreenState extends State<HomeScreen> {
   // ========================================
   // HELPER:  Get category by ID
   // ========================================
-  
+
   Category? _getCategoryById(int categoryId) {
     try {
       return _categories.firstWhere((c) => c.id == categoryId);
@@ -137,7 +137,7 @@ class _HomeScreenState extends State<HomeScreen> {
   // ========================================
   // BUILD PIE CHART SECTIONS
   // ========================================
-  
+
   List<PieChartSectionData> _buildPieChartSections() {
     if (_tasksByCategory.isEmpty) {
       // Return empty section if no tasks
@@ -151,9 +151,9 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ];
     }
-    
+
     List<PieChartSectionData> sections = [];
-    
+
     _tasksByCategory.forEach((categoryId, count) {
       final category = _getCategoryById(categoryId);
       if (category != null) {
@@ -172,8 +172,8 @@ class _HomeScreenState extends State<HomeScreen> {
         );
       }
     });
-    
-    return sections. isEmpty 
+
+    return sections. isEmpty
         ? [PieChartSectionData(color: Colors.grey, value: 1, title: '')]
         : sections;
   }
@@ -181,7 +181,7 @@ class _HomeScreenState extends State<HomeScreen> {
   // ========================================
   // BUILD METHOD
   // ========================================
-  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -192,12 +192,12 @@ class _HomeScreenState extends State<HomeScreen> {
         title: const Text('TaskMaster'),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
       ),
-      
+
       // ========================================
       // SIDE DRAWER (Drawer requirement)
       // ========================================
       drawer: const AppDrawer(),
-      
+
       // ========================================
       // BODY CONTENT
       // ========================================
@@ -208,7 +208,7 @@ class _HomeScreenState extends State<HomeScreen> {
               child: SingleChildScrollView(
                 physics: const AlwaysScrollableScrollPhysics(),
                 padding:  const EdgeInsets.all(16.0),
-                
+
                 // ========================================
                 // COLUMN LAYOUT for main content
                 // ========================================
@@ -246,9 +246,9 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       ],
                     ),
-                    
+
                     const SizedBox(height: 24),
-                    
+
                     // ========================================
                     // PIE CHART SECTION (fl_chart package)
                     // ========================================
@@ -260,7 +260,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    
+
                     // Stack layout for chart and legend
                     SizedBox(
                       height:  200,
@@ -277,7 +277,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               ),
                             ),
                           ),
-                          
+
                           // Legend
                           Expanded(
                             flex: 1,
@@ -315,9 +315,9 @@ class _HomeScreenState extends State<HomeScreen> {
                         ],
                       ),
                     ),
-                    
+
                     const SizedBox(height: 24),
-                    
+
                     // ========================================
                     // RECENT TASKS SECTION
                     // ========================================
@@ -345,9 +345,9 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       ],
                     ),
-                    
+
                     const SizedBox(height: 8),
-                    
+
                     // Tasks list or empty state
                     _recentTasks.isEmpty
                         ?  Center(
@@ -381,7 +381,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             itemBuilder: (context, index) {
                               final task = _recentTasks[index];
                               final category = _getCategoryById(task.categoryId);
-                              
+
                               return TaskCard(
                                 task: task,
                                 category: category,
@@ -407,7 +407,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
             ),
-      
+
       // ========================================
       // FLOATING ACTION BUTTON
       // ========================================
